@@ -7,13 +7,13 @@ Java программы, с которого мы делаем запросы в
 
 Когда мы делаем запрос для выборки данных из базы результатом может оказать огромное количесво строк, которое может
 не поместиться в памяти приложения. Поэтому будет разумным получать данные из базы не целым скопом сразу, а небольшими
-кусками. 
+кусками.
 
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class JDBCRunner {
     }
 
     //Получаем список фамилий студентов чей возраст находится в указанном диапозоне
-    private static List<String> getStudentLastnameBetweenAge(int ageFrom, int ageTo){
+    private static List<String> getStudentLastnameBetweenAge(int ageFrom, int ageTo) {
         String sqlGetBetweenAges = """
                 SELECT lastname
                 FROM students
@@ -77,15 +77,14 @@ Java-клиент будет получать по 3 строки за раз. �
 
 ## MetaData
 С помощью JDBC мы также можем получить всю интересующую нас метаинформацию о базе данных:
+
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JDBCRunner {
     public static void main(String[] args) throws SQLException {
@@ -95,7 +94,7 @@ public class JDBCRunner {
     }
 
     private static void checkMetaData() {
-        try(Connection connection = ConnectionManager.open()) {
+        try (Connection connection = ConnectionManager.open()) {
 
             //Для получения метаданных БД мы оперируем соединением (Connection connection)
             DatabaseMetaData metaData = connection.getMetaData();
@@ -135,7 +134,7 @@ public class JDBCRunner {
             throw new RuntimeException(e);
         }
     }
-        
+
 }
 
 ```
@@ -153,7 +152,7 @@ public class JDBCRunner {
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -172,7 +171,7 @@ public class JDBCTransactionRunner {
                 """;
 
         String sqlDeleteTicket = """
-                DELETE FROM ticket WHERE flight_id = ?
+                DELETE FROM simpleTicket WHERE flight_id = ?
                 """;
         Connection connection = null;
         PreparedStatement deleteTicketStatement = null;
@@ -232,6 +231,8 @@ public class JDBCTransactionRunner {
 
 package com.angubaidullin.jdbc.starter.util;
 
+import com.angubaidullin.jdbc.util.ConnectionManager;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -245,12 +246,12 @@ public class JDBCBatchRunner {
 
     private static void deleteFlight(int flightId) throws SQLException {
         String sqlDeleteFlight = """
-                DELETE FROM flight WHERE id =
-                """ + flightId;
+                                         DELETE FROM flight WHERE id =
+                                         """ + flightId;
 
         String sqlDeleteTicket = """
-                DELETE FROM ticket WHERE flight_id = 
-                """ + flightId;
+                                         DELETE FROM simpleTicket WHERE flight_id = 
+                                         """ + flightId;
         Connection connection = null;
         Statement statement = null;
 
@@ -308,11 +309,12 @@ CLOB - Character Large Object. Символьные объекты
 Например, в Postgres нет BLOB и CLOB. Вместо BLOB используется
 bytea - массив байт (по сути то же самое)
 Вместо CLOB - TEXT
+
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -324,8 +326,8 @@ import java.sql.SQLException;
 
 public class JDBCBlobRunner {
     public static void main(String[] args) throws SQLException, IOException {
-        
-        saveImage(3,"src/main/resources/boeing.jpeg" );
+
+        saveImage(3, "src/main/resources/boeing.jpeg");
 
     }
 
@@ -385,11 +387,12 @@ public class JDBCBlobRunner {
 ```
 
 **Пример, как работать с изображениями в Postgres:**
+
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -499,6 +502,8 @@ public class JDBCByteaPgsqlRunner {
 
 package com.angubaidullin.jdbc.starter.util;
 
+import com.angubaidullin.jdbc.util.PropertiesUtil;
+
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -591,7 +596,7 @@ public class ConnectionPoolManager {
 
 package com.angubaidullin.jdbc.starter.runner;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionPoolManager;
+import com.angubaidullin.jdbc.util.ConnectionPoolManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -651,10 +656,12 @@ HikariCP — это легковесный и быстрый пул соедин
 ```
 
 ### Настройка пула
+
 ```java
 
 package com.angubaidullin.jdbc.starter.util;
 
+import com.angubaidullin.jdbc.util.PropertiesUtil;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -672,8 +679,9 @@ public final class HikariCPManager {
     private static final String CONNECTION_MAX_LIFETIME_KEY = "db.connection.max.lifetime";
 
     private static final Integer DEFAULT_POOL_SIZE = 10;
-    
-    private HikariCPManager() {}
+
+    private HikariCPManager() {
+    }
 
     static {
         //Конфигурация пула соединений
@@ -687,7 +695,7 @@ public final class HikariCPManager {
         Integer maxPoolSize = PropertiesUtil.get(POOL_SIZE_KEY) == null ? DEFAULT_POOL_SIZE : Integer.valueOf(PropertiesUtil.get(POOL_SIZE_KEY));
         config.setMaximumPoolSize(maxPoolSize);
         //Минимальное количество соединений
-        Integer minPoolSize = PropertiesUtil.get(POOL_SIZE_KEY) == null ? DEFAULT_POOL_SIZE/2 : Integer.valueOf(PropertiesUtil.get(POOL_SIZE_KEY)) / 2;
+        Integer minPoolSize = PropertiesUtil.get(POOL_SIZE_KEY) == null ? DEFAULT_POOL_SIZE / 2 : Integer.valueOf(PropertiesUtil.get(POOL_SIZE_KEY)) / 2;
         config.setMinimumIdle(minPoolSize);
         //Максимальное время ожидания соединения в миллисекундах
         config.setConnectionTimeout(Integer.valueOf(PropertiesUtil.get(CONNECTION_TIMEOUT_KEY)));
@@ -695,11 +703,11 @@ public final class HikariCPManager {
         config.setIdleTimeout(Integer.valueOf(PropertiesUtil.get(CONNECTION_IDLE_TIMEOUT_KEY)));
         //Максимальный срок жизни соединения в пуле
         config.setMaxLifetime(Integer.valueOf(PropertiesUtil.get(CONNECTION_MAX_LIFETIME_KEY)));
-        
+
         //Инициализация пула соединений
         dataSource = new HikariDataSource(config);
     }
-    
+
     public static Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
@@ -741,11 +749,12 @@ System.out.println("Total Connections: " + dataSource.getHikariPoolMXBean().getT
 ```
 
 ### Пример использования
+
 ```java
 
 package com.angubaidullin.jdbc.starter.runner;
 
-import com.angubaidullin.jdbc.starter.util.HikariCPManager;
+import com.angubaidullin.jdbc.util.HikariCPManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

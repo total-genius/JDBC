@@ -178,9 +178,12 @@ public final class PropertiesUtil {
 ```
 
 Внесем изменения в ConnectionManager:
+
 ```java
 
 package com.angubaidullin.jdbc.starter.util;
+
+import com.angubaidullin.jdbc.util.PropertiesUtil;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -223,11 +226,12 @@ public final class ConnectionManager {
 ```
 
 Протестируем:
+
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -250,11 +254,12 @@ public class JDBCRunner {
 ### DDL операции
 
 Создадим таблицу БД c помощью `Statement`:
+
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -274,7 +279,7 @@ public class JDBCRunner {
                 """;
 
         try (Connection connection = ConnectionManager.open();
-        Statement statement = connection.createStatement()) {
+             Statement statement = connection.createStatement()) {
 
             System.out.println(connection.getMetaData().getURL());
 
@@ -288,11 +293,12 @@ public class JDBCRunner {
 ```
 
 ### DML операции
+
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -309,7 +315,7 @@ public class JDBCRunner {
                 """;
 
         try (Connection connection = ConnectionManager.open();
-        Statement statement = connection.createStatement()) {
+             Statement statement = connection.createStatement()) {
 
             System.out.println(connection.getMetaData().getURL());
 
@@ -365,10 +371,11 @@ String sqlDelete = """
 ---
 
 ### ResultSet. Операция SELECT
+
 ```java
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -383,7 +390,7 @@ public class JDBCRunner {
                 """;
 
         try (Connection connection = ConnectionManager.open();
-        Statement statement = connection.createStatement()) {
+             Statement statement = connection.createStatement()) {
 
             ResultSet resultSet = statement.executeQuery(sqlSelect);
             while (resultSet.next()) {
@@ -407,7 +414,7 @@ public class JDBCRunner {
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -422,10 +429,10 @@ public class JDBCRunner {
                 VALUES 
                         ('Alex', 'Arnold', 'Sport', 23);
                 """;
-        
+
         try (Connection connection = ConnectionManager.open();
-        Statement statement = connection.createStatement()) {
-            
+             Statement statement = connection.createStatement()) {
+
             int i = statement.executeUpdate(sqlInsert, Statement.RETURN_GENERATED_KEYS);
             ResultSet generatedKeys = statement.getGeneratedKeys();
 
@@ -458,7 +465,7 @@ SQL инъекций.
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -491,7 +498,7 @@ public class JDBCRunner {
 
             ResultSet resultSet = statement.executeQuery(sqlGetByAge);
             while (resultSet.next()) {
-                 studentFirstnames.add(resultSet.getString("firstname"));
+                studentFirstnames.add(resultSet.getString("firstname"));
             }
 
         } catch (SQLException e) {
@@ -510,7 +517,7 @@ public class JDBCRunner {
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -543,7 +550,7 @@ public class JDBCRunner {
 
             ResultSet resultSet = statement.executeQuery(sqlGetByAge);
             while (resultSet.next()) {
-                 studentFirstnames.add(resultSet.getString("firstname"));
+                studentFirstnames.add(resultSet.getString("firstname"));
             }
 
         } catch (SQLException e) {
@@ -566,11 +573,12 @@ public class JDBCRunner {
 PreparedStatement позволяет нам создавать параметризированные запросы. 
 
 **Пример №1:**
+
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -613,7 +621,6 @@ public class JDBCRunner {
             }
 
 
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -628,11 +635,13 @@ public class JDBCRunner {
 
 
 **Пример №2:**
+
 ```java
 
 package com.angubaidullin.jdbc.starter;
 
-import com.angubaidullin.jdbc.starter.util.ConnectionManager;
+import com.angubaidullin.jdbc.util.ConnectionManager;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -644,10 +653,10 @@ public class JDBCRunner {
         studentLastnameBetweenAge.forEach(System.out::println);
 
     }
-    
+
     //Получаем список фамилий студентов чей возраст находится в указанном диапозоне
-    private static List<String> getStudentLastnameBetweenAge(int ageFrom, int ageTo){
-        
+    private static List<String> getStudentLastnameBetweenAge(int ageFrom, int ageTo) {
+
         String sqlGetBetweenAges = """
                 SELECT lastname
                 FROM students

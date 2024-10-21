@@ -68,8 +68,8 @@ public class Ticket {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Ticket ticket = (Ticket) o;
-        return Objects.equals(id, ticket.id) && Objects.equals(passengerName, ticket.passengerName) && Objects.equals(price, ticket.price) && Objects.equals(flightId, ticket.flightId);
+        Ticket simpleTicket = (Ticket) o;
+        return Objects.equals(id, simpleTicket.id) && Objects.equals(passengerName, simpleTicket.passengerName) && Objects.equals(price, simpleTicket.price) && Objects.equals(flightId, simpleTicket.flightId);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class Ticket {
 
     @Override
     public String toString() {
-        return "Ticket{" +
+        return "SimpleTicket{" +
                 "id=" + id +
                 ", passengerName='" + passengerName + '\'' +
                 ", price=" + price +
@@ -93,29 +93,28 @@ public class Ticket {
 
 ## DAO Delete, Insert
 **Создание TicketDao:**
+
 ```java
 package com.angubaidullin.jdbc.dao_starter.dao;
 
+import com.angubaidullin.jdbc.dao_starter.entity.SimpleTicket;
 import com.angubaidullin.jdbc.dao_starter.entity.Ticket;
 import com.angubaidullin.jdbc.dao_starter.exception.DaoException;
-import com.angubaidullin.jdbc.starter.util.HikariCPManager;
+import com.angubaidullin.jdbc.util.HikariCPManager;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class TicketDao {
 
     private static final TicketDao INSTANCE = new TicketDao();
     //Запрос на удаление
     private static final String DELETE_SQL = """
-            DELETE FROM ticket
+            DELETE FROM simpleTicket
             WHERE id = ?
             """;
     //Запрос на сохранение
     private static final String SAVE_SQL = """
-            INSERT INTO ticket (passenger_name, price, flight_id)
+            INSERT INTO simpleTicket (passenger_name, price, flight_id)
             VALUES (?, ?, ?)
             """;
 
@@ -142,23 +141,23 @@ public class TicketDao {
     }
 
     //Сохранение сущности
-    public Ticket save(Ticket ticket) {
+    public SimpleTicket save(SimpleTicket simpleTicket) {
         try (Connection connection = HikariCPManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
-            preparedStatement.setString(1, ticket.getPassengerName());
-            preparedStatement.setBigDecimal(2, ticket.getPrice());
-            preparedStatement.setLong(3, ticket.getFlightId());
+            preparedStatement.setString(1, simpleTicket.getPassengerName());
+            preparedStatement.setBigDecimal(2, simpleTicket.getPrice());
+            preparedStatement.setLong(3, simpleTicket.getFlightId());
 
             preparedStatement.executeUpdate();
 
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
-                ticket.setId(generatedKeys.getLong("id"));
+                simpleTicket.setId(generatedKeys.getLong("id"));
             }
 
-            return ticket;
+            return simpleTicket;
 
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -176,7 +175,7 @@ public class TicketDao {
 
     //Запрос на обновление
     private static final String UPDATE_SQL = """
-            UPDATE ticket
+            UPDATE simpleTicket
             SET passenger_name=?, 
                 price=?, 
                 flight_id=?
@@ -185,29 +184,29 @@ public class TicketDao {
     //Запрос на выборку
     private static final String FIND_BY_ID = """
             SELECT id, passenger_name, price, flight_id
-            FROM ticket
+            FROM simpleTicket
             WHERE id = ?
             """;
     private static final String FIND_ALL = """
             SELECT id, passenger_name, price, flight_id
-            FROM ticket
+            FROM simpleTicket
             """;
 
     //Обновление
-    public void update(Ticket ticket) {
+    public void update(Ticket simpleTicket) {
         try (Connection connection = HikariCPManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
 
-            if (ticket.getId() != null) {
-                preparedStatement.setString(1, ticket.getPassengerName());
-                preparedStatement.setBigDecimal(2, ticket.getPrice());
-                preparedStatement.setLong(3, ticket.getFlightId());
-                preparedStatement.setLong(4, ticket.getId());
+            if (simpleTicket.getId() != null) {
+                preparedStatement.setString(1, simpleTicket.getPassengerName());
+                preparedStatement.setBigDecimal(2, simpleTicket.getPrice());
+                preparedStatement.setLong(3, simpleTicket.getFlightId());
+                preparedStatement.setLong(4, simpleTicket.getId());
 
                 preparedStatement.executeUpdate();
 
             } else {
-                save(ticket);
+                save(simpleTicket);
             }
 
 
@@ -218,17 +217,17 @@ public class TicketDao {
 
     //Выборка по id
     public Optional<Ticket> findById(Long id) {
-        Ticket ticket = null;
+        Ticket simpleTicket = null;
         try (Connection connection = HikariCPManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID)){
 
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                ticket = buildTicket(resultSet);
+                simpleTicket = buildTicket(resultSet);
             }
 
-            return Optional.ofNullable(ticket);
+            return Optional.ofNullable(simpleTicket);
 
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -241,11 +240,11 @@ public class TicketDao {
              Statement statement = connection.createStatement()) {
 
             ResultSet resultSet = statement.executeQuery(FIND_ALL);
-            List<Ticket> tickets = new ArrayList<>();
+            List<Ticket> simpleTickets = new ArrayList<>();
             while (resultSet.next()) {
-               tickets.add(buildTicket(resultSet));
+               simpleTickets.add(buildTicket(resultSet));
             }
-            return tickets;
+            return simpleTickets;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
@@ -315,13 +314,13 @@ public record TicketFilter(
                 preparedStatement.setObject(i + 1, params.get(i));
             }
 
-            List<Ticket> tickets = new ArrayList<>();
+            List<Ticket> simpleTickets = new ArrayList<>();
             System.out.println(preparedStatement);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                tickets.add(buildTicket(resultSet));
+                simpleTickets.add(buildTicket(resultSet));
             }
-            return tickets;
+            return simpleTickets;
 
         } catch (SQLException e) {
             throw new DaoException(e);
